@@ -2,21 +2,35 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
                 echo 'Checking source code...'
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Building Docker Image...'
+                sh 'docker build -t jenkins-demo-app .'
             }
         }
 
-        stage('Deploy') {
+        stage('Stop Old Container') {
             steps {
-                echo 'Deploying Application...'
+                sh 'docker stop jenkins-demo-app || true'
+                sh 'docker rm jenkins-demo-app || true'
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                sh 'docker run -d --name jenkins-demo-app -p 8085:80 jenkins-demo-app'
+            }
+        }
+
+        stage('Deployment Complete') {
+            steps {
+                echo 'Application deployed successfully!'
             }
         }
     }
